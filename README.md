@@ -1,4 +1,4 @@
-# uboot2020_10_tiny4412
+# uboot202010_tiny4412
 修改者：刘桂潮 <gccb@foxmail.com>  
 代码适合的开发板：   
 友善之臂Tiny4412或类似的板子。  
