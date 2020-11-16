@@ -18,7 +18,7 @@ make
 ### 20201116_release:  
 对分支20201023_dev的整理，是一个正式发布的版本20201116，主要修改了sd和emmc相关代码，  
 使得uboot可以用sd或者emmc引导启动内核。
-对应博客：
+对应博客：https://blog.csdn.net/lgc1990/article/details/109239926  
 ### 20201023_dev:  
 主要修改了sd和emmc相关代码，使得uboot可以用sd或者emmc引导启动内核。添加debug打印信息，  
 另外还修改了串口，d-cache等其他的小的功能。该分支属于自己调试使用。  
