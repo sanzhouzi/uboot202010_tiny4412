@@ -833,8 +833,14 @@ static unsigned long exynos4_get_mmc_clk(int dev_index)
 /* exynos4: set the mmc clock */
 static void exynos4_set_mmc_clk(int dev_index, unsigned int div)
 {
+#ifdef CONFIG_TINY4412
+	struct exynos4412_clock *clk =
+		(struct exynos4412_clock *)samsung_get_base_clock();
+#else
 	struct exynos4_clock *clk =
 		(struct exynos4_clock *)samsung_get_base_clock();
+#endif
+
 	unsigned int addr, clear_bit, set_bit;
 
 	/*

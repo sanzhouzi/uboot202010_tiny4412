@@ -241,9 +241,12 @@ void part_init(struct blk_desc *dev_desc)
 	blkcache_invalidate(dev_desc->if_type, dev_desc->devnum);
 
 	dev_desc->part_type = PART_TYPE_UNKNOWN;
+	debug("@@lgc,f=%s<-->n_ents = %d\n", 
+			__func__, n_ents);
 	for (entry = drv; entry != drv + n_ents; entry++) {
 		int ret;
-
+		debug("@@lgc,f=%s<-->entry->test addr = 0x%p\n", 
+				__func__, entry->test);
 		ret = entry->test(dev_desc);
 		debug("%s: try '%s': ret=%d\n", __func__, entry->name, ret);
 		if (!ret) {
@@ -348,6 +351,7 @@ int part_get_info(struct blk_desc *dev_desc, int part,
 		       drv->name);
 		return -ENOSYS;
 	}
+	debug("@@lgc,f=%s<--> drv->get_info addr = 0x%p\n", __func__, drv->get_info);
 	if (drv->get_info(dev_desc, part, info) == 0) {
 		PRINTF("## Valid %s partition found ##\n", drv->name);
 		return 0;

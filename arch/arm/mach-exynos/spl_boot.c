@@ -226,7 +226,7 @@ void copy_uboot_to_ram(void)
 #endif
 	case BOOT_MODE_SD:
 #if defined(CONFIG_TINY4412)
-		offset = UBOOT_START_OFFSET;
+		offset = SD_UBOOT_START_OFFSET;
 		size = UBOOT_SIZE_BLOC_COUNT;
 #else
 		offset = BL2_START_OFFSET;
@@ -234,16 +234,22 @@ void copy_uboot_to_ram(void)
 #endif
 		copy_bl2 = get_irom_func(MMC_INDEX);
 		break;
+		
 #ifdef CONFIG_SUPPORT_EMMC_BOOT
 	case BOOT_MODE_EMMC:
 		/* Set the FSYS1 clock divisor value for EMMC boot */
+#if ! defined(CONFIG_TINY4412)
 		emmc_boot_clk_div_set();
-
+#endif
 		copy_bl2_from_emmc = get_irom_func(EMMC44_INDEX);
 		end_bootop_from_emmc = get_irom_func(EMMC44_END_INDEX);
-
+#if defined(CONFIG_TINY4412)
+		copy_bl2_from_emmc(UBOOT_SIZE_BLOC_COUNT, CONFIG_SYS_TEXT_BASE);
+#else
 		copy_bl2_from_emmc(BL2_SIZE_BLOC_COUNT, CONFIG_SYS_TEXT_BASE);
+#endif		
 		end_bootop_from_emmc();
+
 		break;
 #endif
 #ifdef CONFIG_USB_BOOTING
@@ -303,6 +309,13 @@ void board_init_f(unsigned long bootflag)
 
 	copy_uboot_to_ram();
 
+/* 复制uboot到内存之后，修改emmc/sd时钟 */
+/*
+#if defined(CONFIG_TINY4412)
+	tiny4412_clock_init();
+#endif
+*/
+	
 	/* Jump to U-Boot image */
 	uboot = (void *)CONFIG_SYS_TEXT_BASE;
 	(*uboot)();

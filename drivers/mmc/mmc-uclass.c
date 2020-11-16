@@ -56,7 +56,7 @@ int mmc_send_cmd(struct mmc *mmc, struct mmc_cmd *cmd, struct mmc_data *data)
 int dm_mmc_set_ios(struct udevice *dev)
 {
 	struct dm_mmc_ops *ops = mmc_get_ops(dev);
-
+	debug("@@lgc,f=%s<--> addr(ops->set_ios)=0x%p\n", __func__, ops->set_ios);
 	if (!ops->set_ios)
 		return -ENOSYS;
 	return ops->set_ios(dev);
@@ -98,7 +98,8 @@ int mmc_getwp(struct mmc *mmc)
 int dm_mmc_get_cd(struct udevice *dev)
 {
 	struct dm_mmc_ops *ops = mmc_get_ops(dev);
-
+	/*Liuguichao add debug.*/
+	debug("%s--ops->get_cd=0x%p\n", __func__, ops->get_cd);
 	if (!ops->get_cd)
 		return -ENOSYS;
 	return ops->get_cd(dev);
@@ -256,7 +257,6 @@ struct mmc *find_mmc_device(int dev_num)
 {
 	struct udevice *dev, *mmc_dev;
 	int ret;
-
 	ret = blk_find_device(IF_TYPE_MMC, dev_num, &dev);
 
 	if (ret) {
@@ -307,7 +307,6 @@ void mmc_do_preinit(void)
 		return;
 	uclass_foreach_dev(dev, uc) {
 		struct mmc *m = mmc_get_mmc_dev(dev);
-
 		if (!m)
 			continue;
 		if (m->preinit)
@@ -408,12 +407,14 @@ static int mmc_select_hwpart(struct udevice *bdev, int hwpart)
 	struct blk_desc *desc = dev_get_uclass_platdata(bdev);
 	int ret;
 
+	debug("@@lgc, func = %s<--> desc->hwpart = %d, hwpart = %d, \n", 
+		__func__, desc->hwpart, hwpart);
 	if (desc->hwpart == hwpart)
 		return 0;
 
 	if (mmc->part_config == MMCPART_NOAVAILABLE)
 		return -EMEDIUMTYPE;
-
+		
 	ret = mmc_switch_part(mmc, hwpart);
 	if (!ret)
 		blkcache_invalidate(desc->if_type, desc->devnum);

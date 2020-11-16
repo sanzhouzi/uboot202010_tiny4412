@@ -633,7 +633,6 @@ static int sdhci_init(struct mmc *mmc)
 	gpio_request_by_name(dev, "cd-gpios", 0,
 			     &host->cd_gpio, GPIOD_IS_IN);
 #endif
-
 	sdhci_reset(host, SDHCI_RESET_ALL);
 
 #if defined(CONFIG_FIXED_SDHCI_ALIGNED_BUFFER)
@@ -695,7 +694,7 @@ static int sdhci_get_cd(struct udevice *dev)
 	struct mmc *mmc = mmc_get_mmc_dev(dev);
 	struct sdhci_host *host = mmc->priv;
 	int value;
-
+	
 	/* If nonremovable, assume that the card is always present. */
 	if (mmc->cfg->host_caps & MMC_CAP_NONREMOVABLE)
 		return 1;
@@ -708,7 +707,7 @@ static int sdhci_get_cd(struct udevice *dev)
 	if (value >= 0) {
 		if (mmc->cfg->host_caps & MMC_CAP_CD_ACTIVE_HIGH)
 			return !value;
-		else
+		else 
 			return value;
 	}
 #endif
@@ -803,7 +802,6 @@ int sdhci_setup_cfg(struct mmc_config *cfg, struct sdhci_host *host,
 		host->clk_mul = (caps_1 & SDHCI_CLOCK_MUL_MASK) >>
 				SDHCI_CLOCK_MUL_SHIFT;
 	}
-
 	if (host->max_clk == 0) {
 		if (SDHCI_GET_VERSION(host) >= SDHCI_SPEC_300)
 			host->max_clk = (caps & SDHCI_CLOCK_V3_BASE_MASK) >>

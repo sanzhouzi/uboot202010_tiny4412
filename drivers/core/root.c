@@ -357,12 +357,14 @@ int dm_init_and_scan(bool pre_reloc_only)
 		debug("dm_init() failed: %d\n", ret);
 		return ret;
 	}
+	/*扫描不用设备树的驱动, 这里没有设备*/
 	ret = dm_scan_platdata(pre_reloc_only);
 	if (ret) {
 		debug("dm_scan_platdata() failed: %d\n", ret);
 		return ret;
 	}
 
+	/*扫描使用设备树的驱动*/
 	if (CONFIG_IS_ENABLED(OF_CONTROL) && !CONFIG_IS_ENABLED(OF_PLATDATA)) {
 		ret = dm_extended_scan_fdt(gd->fdt_blob, pre_reloc_only);
 		if (ret) {

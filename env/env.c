@@ -109,7 +109,7 @@ static void env_set_inited(enum env_location location)
 }
 
 /**
- * env_get_location() - Returns the best env location for a board
+ * env_get_location() - Returns the best env location for a board 返回板的最佳环境位置
  * @op: operations performed on the environment
  * @prio: priority between the multiple environments, 0 being the
  *        highest priority
@@ -136,7 +136,7 @@ __weak enum env_location env_get_location(enum env_operation op, int prio)
 
 
 /**
- * env_driver_lookup() - Finds the most suited environment location
+ * env_driver_lookup() - Finds the most suited environment location 查找最合适的环境位置
  * @op: operations performed on the environment
  * @prio: priority between the multiple environments, 0 being the
  *        highest priority
@@ -195,7 +195,10 @@ int env_load(void)
 		 * In error case, the error message must be printed during
 		 * drv->load() in some underlying API, and it must be exactly
 		 * one message.
+		 * ret = drv->load();调用加载函数
+		 * 读取SD/MMC里面的env :env_mmc_load
 		 */
+		debug("@@lgc,f=%s<--> addr(drv->load)=0x%p\n", __func__, drv->load);
 		ret = drv->load();
 		if (!ret) {
 			printf("OK\n");
@@ -246,7 +249,8 @@ int env_reload(void)
 			printf("not initialized\n");
 			return -ENODEV;
 		}
-
+		
+		debug("@@lgc,f=%s<--> addr(drv->load)=0x%p\n", __func__, drv->load);
 		ret = drv->load();
 		if (ret)
 			printf("Failed (%d)\n", ret);
@@ -269,6 +273,8 @@ int env_save(void)
 		int ret;
 
 		printf("Saving Environment to %s... ", drv->name);
+		debug("@@lgc,f=%s<--> drv->save addr = 0x%p\n", 
+				__func__, drv->save);
 		if (!drv->save) {
 			printf("not possible\n");
 			return -ENODEV;
@@ -279,6 +285,7 @@ int env_save(void)
 			return -ENODEV;
 		}
 
+		debug("@@lgc,f=%s<--> addr(drv->save)=0x%p\n", __func__, drv->save);
 		ret = drv->save();
 		if (ret)
 			printf("Failed (%d)\n", ret);
@@ -307,6 +314,7 @@ int env_erase(void)
 			return -ENODEV;
 
 		printf("Erasing Environment on %s... ", drv->name);
+		debug("@@lgc,f=%s<--> addr(drv->erase)=0x%p\n", __func__, drv->erase);
 		ret = drv->erase();
 		if (ret)
 			printf("Failed (%d)\n", ret);

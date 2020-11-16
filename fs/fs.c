@@ -360,6 +360,8 @@ int fs_set_blk_dev(const char *ifname, const char *dev_part_str, int fstype)
 {
 	struct fstype_info *info;
 	int part, i;
+	debug("@@lgc,f=%s<--> ifname=%s, dev_part_str=%s, fstype=%d\n", 
+			__func__, ifname, dev_part_str, fstype);
 #ifdef CONFIG_NEEDS_MANUAL_RELOC
 	static int relocated;
 
@@ -702,6 +704,7 @@ int do_load(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[],
 		return CMD_RET_USAGE;
 	if (argc > 7)
 		return CMD_RET_USAGE;
+
 
 	if (fs_set_blk_dev(argv[1], (argc >= 3) ? argv[2] : NULL, fstype))
 		return 1;

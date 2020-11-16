@@ -348,7 +348,8 @@ int blk_select_hwpart(struct udevice *dev, int hwpart)
 		return -ENOSYS;
 	if (!ops->select_hwpart)
 		return 0;
-
+	debug("@@lgc, f=%s<--> ops->select_hwpart addr = 0x%p\n", __func__, 
+			ops->select_hwpart);
 	return ops->select_hwpart(dev, hwpart);
 }
 
@@ -497,6 +498,7 @@ int blk_get_from_parent(struct udevice *parent, struct udevice **devp)
 		      __func__, uclass_get_name(id), dev->name);
 		return -ENOTBLK;
 	}
+	
 	ret = device_probe(dev);
 	if (ret)
 		return ret;

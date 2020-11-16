@@ -72,6 +72,7 @@ int device_bind_with_driver_data(struct udevice *parent,
  *
  * This is a helper function used to bind devices which do not use device
  * tree.
+ * 这是一个帮助程序功能，用于绑定不使用设备树的设备。
  *
  * @parent: Pointer to device's parent
  * @pre_reloc_only: If true, bind the driver only if its DM_FLAG_PRE_RELOC flag
@@ -196,7 +197,7 @@ static inline int device_chld_remove(struct udevice *dev, struct driver *drv,
  */
 fdt_addr_t simple_bus_translate(struct udevice *dev, fdt_addr_t addr);
 
-/* Cast away any volatile pointer */
+/* Cast away any volatile pointer 抛弃任何易失性指针*/
 #define DM_ROOT_NON_CONST		(((gd_t *)gd)->dm_root)
 #define DM_UCLASS_ROOT_NON_CONST	(((gd_t *)gd)->uclass_root)
 

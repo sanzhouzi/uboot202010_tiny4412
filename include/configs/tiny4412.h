@@ -41,13 +41,33 @@
 /* MMC SPL */
 #define COPY_BL2_FNPTR_ADDR	0x02020030
 
+/* 
+	mmcdev			当前启动的MMC设备，启动时根据实际启动的MMC变更为2(sd)或者0(eMMC)
+	sddev 			sd卡是MMC2设备
+	sdkernelboff 	内核在sd卡上面的偏移(块)
+	eMMCkernelboff 	内核在eMMC上面的偏移(块)
+	kernelbsize 	内核(块)大小,uboot烧录内核镜像时需要￥改变其值￥
+	bootargs		传递给内核的参数
+
+
+	bootenv
+	loadbootenv
+	importbootenv
+	以上3个环境变量并未使用到，这几个是与在文件系统读取镜像有关的参数，留待以后需要修改时使用。
+ */
+
 #define CONFIG_EXTRA_ENV_SETTINGS \
-	"loadaddr=0x40007000\0" \
+	"loadaddr=0x40008000\0" \
 	"rdaddr=0x48000000\0" \
-	"kerneladdr=0x40007000\0" \
+	"kerneladdr=0x40008000\0" \
 	"ramdiskaddr=0x48000000\0" \
 	"console=ttySAC0,115200n8\0" \
 	"mmcdev=0\0" \
+	"sddev=2\0" \
+	"sdkernelboff=0x691\0" \
+	"eMMCkernelboff=0x0\0" \
+	"kernelbsize=0x2480\0" \
+	"bootargs=root=/dev/mmcblk0p1 rootfstype=ext4 console=ttySAC0,115200 init=/linuxrc ctp=2 skipcali=y ethmac=1C:6F:65:34:51:7E\0" \
 	"bootenv=uEnv.txt\0" \
 	"loadbootenv=load mmc ${mmcdev} ${loadaddr} ${bootenv}\0" \
 	"importbootenv=echo Importing environment from mmc ...; " \
@@ -55,6 +75,11 @@
         "loadbootscript=load mmc ${mmcdev} ${loadaddr} boot.scr\0" \
         "bootscript=echo Running bootscript from mmc${mmcdev} ...; " \
                 "source ${loadaddr}\0"
+
+/* 
+ * 参见设备树arch/arm/dts/exynos4412-tiny4412.dts的设置，
+ * 设备树bootcmd存在的情况下，这里的配置不使用，这里的配置与文件系统读取镜像有关。
+ */
 #define CONFIG_BOOTCOMMAND \
 	"if mmc rescan; then " \
 		"echo SD/MMC found on device ${mmcdev};" \
@@ -70,7 +95,9 @@
 			"run bootscript; " \
 		"fi; " \
 	"fi;" \
-	"load mmc ${mmcdev} ${loadaddr} uImage; bootm ${loadaddr} "
+	"load mmc ${mmcdev} ${loadaddr} zImage; bootz ${loadaddr} "
+
+
 
 #define CONFIG_CLK_1000_400_200
 
@@ -80,6 +107,7 @@
 #define RESERVE_BLOCK_SIZE		(512)
 #define BL1_SIZE			(8 << 10) /*8 K reserved for BL1*/
 #define BL2_SIZE			(16 << 10) /*16 K reserved for BL2*/
+#define TINY4412_ENV_SIZE			(16 << 10) /*16 K reserved for ENV*/
 
 #define CONFIG_SPL_MAX_FOOTPRINT	(14 * 1024)
 
@@ -90,11 +118,27 @@
 #define CONFIG_SYS_INIT_SP_ADDR		0x42E00000
 #endif
 
-/* U-Boot copy size from boot Media to DRAM.*/
-#define COPY_UBOOT_SIZE		0xC8000 //800KB
-#define UBOOT_START_OFFSET	((RESERVE_BLOCK_SIZE + BL1_SIZE + BL2_SIZE) /512)
-#define UBOOT_SIZE_BLOC_COUNT	(COPY_UBOOT_SIZE /512)
+/* 
+ * SD卡分区:
+ *name：	RESERVE--------BL1--------BL2--------UBOOT-------ENV---------KERNEL
+ *size：	512B-----------8KB--------16KB-------800KB-------16KB--------10MB
+ *
+ * eMMC分区:
+ * 	boot1分区	mmc dev 0 1：
+ *	name：	BL1--------BL2--------UBOOT--------ENV
+ *	size：	8KB--------16KB-------800KB--------16KB
+ *
+ *	user分区	mmc dev 0 0：
+ *	name:kernel
+ *	size:10MB
+ */
 
+/* U-Boot copy size from boot Media to DRAM.*/
+#define COPY_UBOOT_SIZE		(800 << 10) /*800 K reserved for UBOOT*/
+#define SD_UBOOT_START_OFFSET	((RESERVE_BLOCK_SIZE + BL1_SIZE + BL2_SIZE) / 512)
+#define UBOOT_SIZE_BLOC_COUNT	(COPY_UBOOT_SIZE / 512)
+
+/* BL2 copy size from boot Media to DRAM.*/
 #define COPY_BL2_SIZE		0x4000
 #define BL2_START_OFFSET	((RESERVE_BLOCK_SIZE + BL1_SIZE) /512)
 #define BL2_SIZE_BLOC_COUNT	(COPY_BL2_SIZE /512)

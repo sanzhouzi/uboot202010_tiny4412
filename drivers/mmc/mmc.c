@@ -495,7 +495,6 @@ static int mmc_go_idle(struct mmc *mmc)
 	cmd.resp_type = MMC_RSP_NONE;
 
 	err = mmc_send_cmd(mmc, &cmd, NULL);
-
 	if (err)
 		return err;
 
@@ -686,7 +685,7 @@ static int mmc_send_op_cond(struct mmc *mmc)
 		/* exit if not busy (flag seems to be inverted) */
 		if (mmc->ocr & OCR_BUSY)
 			break;
-
+		
 		if (get_timer(start) > timeout)
 			return -ETIMEDOUT;
 		udelay(100);
@@ -1606,7 +1605,8 @@ int mmc_set_clock(struct mmc *mmc, uint clock, bool disable)
 		if (clock < mmc->cfg->f_min)
 			clock = mmc->cfg->f_min;
 	}
-
+	debug("@@lgc,f=%s<--> clock max=%d, min=%d, user_c=%d\n", 
+		__func__, mmc->cfg->f_max, mmc->cfg->f_min, clock);
 	mmc->clock = clock;
 	mmc->clk_disable = disable;
 
@@ -2635,12 +2635,15 @@ static int mmc_startup(struct mmc *mmc)
 	sprintf(bdesc->vendor, "Man %06x Snr %04x%04x",
 		mmc->cid[0] >> 24, (mmc->cid[2] & 0xffff),
 		(mmc->cid[3] >> 16) & 0xffff);
+
 	sprintf(bdesc->product, "%c%c%c%c%c%c", mmc->cid[0] & 0xff,
 		(mmc->cid[1] >> 24), (mmc->cid[1] >> 16) & 0xff,
 		(mmc->cid[1] >> 8) & 0xff, mmc->cid[1] & 0xff,
 		(mmc->cid[2] >> 24) & 0xff);
+	
 	sprintf(bdesc->revision, "%d.%d", (mmc->cid[2] >> 20) & 0xf,
 		(mmc->cid[2] >> 16) & 0xf);
+
 #else
 	bdesc->vendor[0] = 0;
 	bdesc->product[0] = 0;
@@ -2718,7 +2721,7 @@ static int mmc_power_init(struct mmc *mmc)
 static void mmc_set_initial_state(struct mmc *mmc)
 {
 	int err;
-
+	debug("@@lgc,f=%s<--> put the host in the initial state\n", __func__);
 	/* First try to set 3.3V. If it fails set to 1.8V */
 	err = mmc_set_signal_voltage(mmc, MMC_SIGNAL_VOLTAGE_330);
 	if (err != 0)
@@ -2825,6 +2828,7 @@ int mmc_get_op_cond(struct mmc *mmc)
 #endif
 	mmc->ddr_mode = 0;
 
+
 retry:
 	mmc_set_initial_state(mmc);
 
@@ -2909,7 +2913,6 @@ static int mmc_complete_init(struct mmc *mmc)
 	mmc->init_in_progress = 0;
 	if (mmc->op_cond_pending)
 		err = mmc_complete_op_cond(mmc);
-
 	if (!err)
 		err = mmc_startup(mmc);
 	if (err)
@@ -2932,10 +2935,8 @@ int mmc_init(struct mmc *mmc)
 		return 0;
 
 	start = get_timer(0);
-
 	if (!mmc->init_in_progress)
 		err = mmc_start_init(mmc);
-
 	if (!err)
 		err = mmc_complete_init(mmc);
 	if (err)
@@ -3004,10 +3005,14 @@ static int mmc_probe(struct bd_info *bis)
 	if (ret)
 		return ret;
 
+
 	/*
 	 * Try to add them in sequence order. Really with driver model we
 	 * should allow holes, but the current MMC list does not allow that.
 	 * So if we request 0, 1, 3 we will get 0, 1, 2.
+	 * 尝试按顺序添加它们。 实际上，在驱动程序模型中，
+	 * 我们应该允许存在漏洞，但是当前的MMC列表不允许这样做。 
+	 * 因此，如果我们要求0、1、3，我们将得到0、1、2。
 	 */
 	for (i = 0; ; i++) {
 		ret = uclass_get_device_by_seq(UCLASS_MMC, i, &dev);

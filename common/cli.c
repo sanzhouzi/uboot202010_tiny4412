@@ -18,6 +18,7 @@
 #include <fdtdec.h>
 #include <hang.h>
 #include <malloc.h>
+#include <log.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -105,7 +106,9 @@ int run_command_list(const char *cmd, int len, int flag)
 		buff[len] = '\0';
 	}
 #ifdef CONFIG_HUSH_PARSER
+
 	rcode = parse_string_outer(buff, FLAG_PARSE_SEMICOLON);
+
 #else
 	/*
 	 * This function will overwrite any \n it sees with a \0, which

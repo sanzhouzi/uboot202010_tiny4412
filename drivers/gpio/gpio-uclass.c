@@ -356,8 +356,10 @@ int dm_gpio_request(struct gpio_desc *desc, const char *label)
 	int ret;
 
 	uc_priv = dev_get_uclass_priv(dev);
-	if (uc_priv->name[desc->offset])
+	
+	if (uc_priv->name[desc->offset]) 
 		return -EBUSY;
+
 	str = strdup(label);
 	if (!str)
 		return -ENOMEM;
@@ -369,7 +371,6 @@ int dm_gpio_request(struct gpio_desc *desc, const char *label)
 		}
 	}
 	uc_priv->name[desc->offset] = str;
-
 	return 0;
 }
 
@@ -1051,6 +1052,7 @@ int gpio_request_by_name(struct udevice *dev, const char *list_name, int index,
 
 	ret = dev_read_phandle_with_args(dev, list_name, "#gpio-cells", 0,
 					 index, &args);
+
 	node = dev_ofnode(dev);
 	return gpio_request_tail(ret, ofnode_get_name(node), &args, list_name,
 				 index, desc, flags, index > 0, NULL);
@@ -1204,7 +1206,6 @@ int gpio_dev_request_index(struct udevice *dev, const char *nodename,
 	args.args_count = 2;
 	args.args[0] = index;
 	args.args[1] = dtflags;
-
 	return gpio_request_tail(0, nodename, &args, list_name, index, desc,
 				 flags, 0, dev);
 }

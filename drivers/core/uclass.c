@@ -28,11 +28,13 @@ struct uclass *uclass_find(enum uclass_id key)
 
 	if (!gd->dm_root)
 		return NULL;
+
 	/*
 	 * TODO(sjg@chromium.org): Optimise this, perhaps moving the found
 	 * node to the start of the list, or creating a linear array mapping
 	 * id to node.
 	 */
+	
 	list_for_each_entry(uc, &gd->uclass_root, sibling_node) {
 		if (uc->uc_drv->id == key)
 			return uc;
@@ -144,6 +146,7 @@ int uclass_get(enum uclass_id id, struct uclass **ucp)
 
 	*ucp = NULL;
 	uc = uclass_find(id);
+
 	if (!uc)
 		return uclass_add(id, ucp);
 	*ucp = uc;
@@ -303,6 +306,7 @@ int uclass_find_device_by_seq(enum uclass_id id, int seq_or_req_seq,
 
 	*devp = NULL;
 	log_debug("%d %d\n", find_req_seq, seq_or_req_seq);
+
 	if (seq_or_req_seq == -1)
 		return -ENODEV;
 	ret = uclass_get(id, &uc);
@@ -312,6 +316,7 @@ int uclass_find_device_by_seq(enum uclass_id id, int seq_or_req_seq,
 	uclass_foreach_dev(dev, uc) {
 		log_debug("   - %d %d '%s'\n",
 			  dev->req_seq, dev->seq, dev->name);
+
 		if ((find_req_seq ? dev->req_seq : dev->seq) ==
 				seq_or_req_seq) {
 			*devp = dev;
@@ -767,6 +772,7 @@ int uclass_post_probe_device(struct udevice *dev)
 
 	uc_drv = dev->uclass->uc_drv;
 	if (uc_drv->post_probe) {
+		debug("@@lgc,f=%s<-->uc_drv->post_probe addr =  0x%p\n", __func__, uc_drv->post_probe);
 		ret = uc_drv->post_probe(dev);
 		if (ret)
 			return ret;

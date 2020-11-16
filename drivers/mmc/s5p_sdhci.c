@@ -76,6 +76,9 @@ static void s5p_sdhci_set_control_reg(struct sdhci_host *host)
 static void s5p_set_clock(struct sdhci_host *host, u32 div)
 {
 	/* ToDo : Use the Clock Framework */
+	/* 对于tiny4412板子，
+	 * 使用了arch/arm/mach-exynos/clock.c文件的set_mmc_clk函数修改mmc时钟。
+	*/
 	set_mmc_clk(host->index, div);
 }
 
@@ -196,7 +199,6 @@ static int s5p_sdhci_probe(struct udevice *dev)
 	struct mmc_uclass_priv *upriv = dev_get_uclass_priv(dev);
 	struct sdhci_host *host = dev_get_priv(dev);
 	int ret;
-
 	ret = sdhci_get_config(gd->fdt_blob, dev_of_offset(dev), host);
 	if (ret)
 		return ret;
@@ -218,7 +220,6 @@ static int s5p_sdhci_probe(struct udevice *dev)
 
 	host->mmc->priv = host;
 	upriv->mmc = host->mmc;
-
 	return sdhci_probe(dev);
 }
 

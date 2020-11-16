@@ -601,6 +601,7 @@ int l2cache_init(void)
 	ver = SVR_SOC_VER(svr);
 
 	asm("msync;isync");
+	
 	cache_ctl = l2cache->l2ctl;
 
 #if defined(CONFIG_SYS_RAMBOOT) && defined(CONFIG_SYS_INIT_L2_ADDR)

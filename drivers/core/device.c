@@ -149,7 +149,6 @@ static int device_bind_common(struct udevice *parent, const struct driver *drv,
 		/* put dev into parent's successor list */
 		list_add_tail(&dev->sibling_node, &parent->child_head);
 	}
-
 	ret = uclass_bind_device(dev);
 	if (ret)
 		goto fail_uclass_bind;
@@ -325,7 +324,6 @@ int device_ofdata_to_platdata(struct udevice *dev)
 	const struct driver *drv;
 	int size = 0;
 	int ret;
-
 	if (!dev)
 		return -EINVAL;
 
@@ -413,10 +411,10 @@ int device_probe(struct udevice *dev)
 
 	if (dev->flags & DM_FLAG_ACTIVATED)
 		return 0;
-
+	/* 运行到这里说明这个设备是激活的 */
+	
 	drv = dev->driver;
 	assert(drv);
-
 	ret = device_ofdata_to_platdata(dev);
 	if (ret)
 		goto fail;
@@ -438,6 +436,9 @@ int device_probe(struct udevice *dev)
 	}
 
 	seq = uclass_resolve_seq(dev);
+	
+	/*Liuguichao add.*/
+	debug("seq = %d\n", seq);
 	if (seq < 0) {
 		ret = seq;
 		goto fail;
@@ -484,6 +485,7 @@ int device_probe(struct udevice *dev)
 			goto fail;
 	}
 
+	debug("@@lgc,f=%s<-->probe addr= %p\n", __func__, drv->probe);
 	if (drv->probe) {
 		ret = drv->probe(dev);
 		if (ret)

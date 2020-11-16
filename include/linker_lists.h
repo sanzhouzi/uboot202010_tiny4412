@@ -105,7 +105,7 @@
  */
 
 /**
- * ll_entry_start() - Point to first entry of linker-generated array
+ * ll_entry_start() - Point to first entry of linker-generated array 指向链接器生成的数组的第一个条目
  * @_type:	Data type of the entry
  * @_list:	Name of the list in which this entry is placed
  *
@@ -155,7 +155,7 @@
 	(_type *)&end;							\
 })
 /**
- * ll_entry_count() - Return the number of elements in linker-generated array
+ * ll_entry_count() - Return the number of elements in linker-generated array 返回链接器生成的数组中的元素数
  * @_type:	Data type of the entry
  * @_list:	Name of the list of which the number of elements is computed
  *

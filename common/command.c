@@ -577,7 +577,7 @@ static int cmd_call(struct cmd_tbl *cmdtp, int flag, int argc,
 		    char *const argv[], int *repeatable)
 {
 	int result;
-
+	debug("@@lgc,f=%s<--> cmdtp|name=%s addr(cmd_rep)=0x%p\n", __func__, cmdtp->name, cmdtp->cmd_rep);
 	result = cmdtp->cmd_rep(cmdtp, flag, argc, argv, repeatable);
 	if (result)
 		debug("Command failed, result=%d\n", result);

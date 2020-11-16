@@ -131,9 +131,10 @@ enum {
  * @child_head: List of children of this device
  * @sibling_node: Next device in list of all devices
  * @flags: Flags for this device DM_FLAG_...
- * @req_seq: Requested sequence number for this device (-1 = any)
+ * @req_seq: Requested sequence number for this device (-1 = any) 此设备的请求序列号（-1 =任何）
  * @seq: Allocated sequence number for this device (-1 = none). This is set up
  * when the device is probed and will be unique within the device's uclass.
+ * @seq：为此设备分配的序列号（-1 =无）。 这是在探测设备时设置的，并且在设备的uclass中是唯一的。
  * @devres_head: List of memory allocations associated with this device.
  *		When CONFIG_DEVRES is enabled, devm_kmalloc() and friends will
  *		add to this list. Memory so-allocated will be freed

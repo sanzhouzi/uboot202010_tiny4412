@@ -18,6 +18,7 @@
 #include <part.h>
 #include <search.h>
 #include <errno.h>
+#include <log.h>
 
 #define __STR(X) #X
 #define STR(X) __STR(X)
@@ -36,19 +37,24 @@ static inline int mmc_offset_try_partition(const char *str, int copy, s64 *val)
 	struct blk_desc *desc;
 	int len, i, ret;
 	char dev_str[4];
-
+	
 	snprintf(dev_str, sizeof(dev_str), "%d", mmc_get_env_dev());
 	ret = blk_get_device_by_str("mmc", dev_str, &desc);
+	
+	debug("@@lgc,f=%s<--> idev_str = %s, ret = %d\n", 
+				__func__, dev_str, ret);
 	if (ret < 0)
 		return (ret);
 
 	for (i = 1;;i++) {
 		ret = part_get_info(desc, i, &info);
+		debug("@@lgc,f=%s<--> ret = %d, i = %d, info.name = %s, str = %s\n", 
+				__func__, ret, i, (const char *)info.name, str);
 		if (ret < 0)
 			return ret;
-
-		if (!strncmp((const char *)info.name, str, sizeof(str)))
+		if (!strncmp((const char *)info.name, str, sizeof(str))) {
 			break;
+		}
 	}
 
 	/* round up to info.blksz */
@@ -56,7 +62,8 @@ static inline int mmc_offset_try_partition(const char *str, int copy, s64 *val)
 
 	/* use the top of the partion for the environment */
 	*val = (info.start + info.size - (1 + copy) * len) * info.blksz;
-
+	debug("@@lgc,f=%s<-->info.start=0x%lx, info.size=0x%lx, copy=0x%x, len=0x%x\n", 
+			__func__, info.start, info.size, copy, len);
 	return 0;
 }
 
@@ -66,10 +73,18 @@ static inline s64 mmc_offset(int copy)
 		const char *offset_redund;
 		const char *partition;
 		const char *offset;
+#ifdef CONFIG_TINY4412
+		const char *sd_offset;
+		const char *emmc_offset;
+#endif
 	} dt_prop = {
 		.offset_redund = "u-boot,mmc-env-offset-redundant",
 		.partition = "u-boot,mmc-env-partition",
 		.offset = "u-boot,mmc-env-offset",
+#ifdef CONFIG_TINY4412
+		.sd_offset = "u-boot,sd-env-offset",
+		.emmc_offset = "u-boot,emmc-env-offset",
+#endif
 	};
 	s64 val = 0, defvalue;
 	const char *propname;
@@ -78,6 +93,7 @@ static inline s64 mmc_offset(int copy)
 
 	/* look for the partition in mmc CONFIG_SYS_MMC_ENV_DEV */
 	str = fdtdec_get_config_string(gd->fdt_blob, dt_prop.partition);
+	debug("@@lgc,f=%s<--> str = %s\n", __func__, str);
 	if (str) {
 		/* try to place the environment at end of the partition */
 		err = mmc_offset_try_partition(str, copy, &val);
@@ -86,8 +102,16 @@ static inline s64 mmc_offset(int copy)
 	}
 
 	defvalue = CONFIG_ENV_OFFSET;
+#ifdef CONFIG_TINY4412
+	if (mmc_get_env_dev())
+		propname = dt_prop.sd_offset;
+	else
+		propname = dt_prop.emmc_offset;
+#else
 	propname = dt_prop.offset;
-
+#endif
+	debug("@@lgc,f=%s<--> defvalue = 0x%llx, propname = %s\n", 
+			__func__, defvalue, propname);
 #if defined(CONFIG_ENV_OFFSET_REDUND)
 	if (copy) {
 		defvalue = CONFIG_ENV_OFFSET_REDUND;
@@ -112,20 +136,27 @@ static inline s64 mmc_offset(int copy)
 __weak int mmc_get_env_addr(struct mmc *mmc, int copy, u32 *env_addr)
 {
 	s64 offset = mmc_offset(copy);
-
 	if (offset < 0)
 		offset += mmc->capacity;
 
 	*env_addr = offset;
-
+	debug("@@lgc, %s<--> env_addr = 0x%x\n", __func__, *env_addr);
 	return 0;
 }
 
 #ifdef CONFIG_SYS_MMC_ENV_PART
 __weak uint mmc_get_env_part(struct mmc *mmc)
 {
+#ifdef CONFIG_TINY4412
+	/* eMMC 返回设置值，否则返回0 */
+	if (!mmc_get_env_dev())
+		return CONFIG_SYS_MMC_ENV_PART;
+	return 0;
+#else
 	return CONFIG_SYS_MMC_ENV_PART;
+#endif
 }
+
 
 static unsigned char env_mmc_orig_hwpart;
 
@@ -139,6 +170,10 @@ static int mmc_set_env_part(struct mmc *mmc)
 	ret = blk_select_hwpart_devnum(IF_TYPE_MMC, dev, part);
 	if (ret)
 		puts("MMC partition switch failed\n");
+	
+	debug("@@lgc,f=%s<-->part = %d, dev = %d, "
+	"env_mmc_orig_hwpart = %d, ret = %d\n", 
+		__func__, part, dev, env_mmc_orig_hwpart, ret);
 
 	return ret;
 }
@@ -153,7 +188,6 @@ static const char *init_mmc_for_env(struct mmc *mmc)
 
 #if CONFIG_IS_ENABLED(BLK)
 	struct udevice *dev;
-
 	if (blk_get_from_parent(mmc->dev, &dev))
 		return "No block device";
 #else
@@ -294,9 +328,9 @@ static inline int read_env(struct mmc *mmc, unsigned long size,
 
 	blk_start	= ALIGN(offset, mmc->read_bl_len) / mmc->read_bl_len;
 	blk_cnt		= ALIGN(size, mmc->read_bl_len) / mmc->read_bl_len;
-
 	n = blk_dread(desc, blk_start, blk_cnt, (uchar *)buffer);
-
+	debug("@@lgc, func = %s<------> blk_start = 0x%x, blk_cnt = 0x%x, n = 0x%x\n", 
+			__func__, blk_start, blk_cnt, n);
 	return (n == blk_cnt) ? 0 : -1;
 }
 
@@ -369,12 +403,35 @@ static int env_mmc_load(void)
 		ret = -EIO;
 		goto fini;
 	}
-
+	
 	if (read_env(mmc, CONFIG_ENV_SIZE, offset, buf)) {
 		errmsg = "!read failed";
 		ret = -EIO;
 		goto fini;
 	}
+
+
+#ifdef DEBUG
+	debug("@@lgc, func = %s<------> CONFIG_ENV_SIZE = 0x%x\n", 
+		__func__, CONFIG_ENV_SIZE);
+/*
+	debug("*************************GET ENV**************************\n");
+	int i, count = 0;
+	for (i = 0; i < CONFIG_ENV_SIZE; i++) {
+		if (buf[i] != 0) {
+			count = 0;
+			printf("%c", buf[i]);
+		}else {
+			count++;
+			printf("\n");
+		}
+		if (count > 1)
+			break;
+	}
+	debug("*************************END******************************\n");
+*/
+#endif	
+
 
 	ret = env_import(buf, 1, H_EXTERNAL);
 	if (!ret) {

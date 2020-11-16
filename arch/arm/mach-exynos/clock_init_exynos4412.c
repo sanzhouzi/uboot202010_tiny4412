@@ -29,6 +29,7 @@
 #include <asm/arch/cpu.h>
 #include <asm/arch/clk.h>
 #include <asm/arch/clock.h>
+#include <debug_uart.h>
 #include "common_setup.h"
 #include "exynos4412_setup.h"
 
@@ -96,3 +97,58 @@ void system_clock_init(void)
 	writel(CLK_SRC_TOP0_VAL_UP_V_E_PLL, &clk->src_top0);
 	
 }
+
+/*
+#if defined(CONFIG_TINY4412)
+static void fsys_mmc0_clock_init(void)
+{
+	struct exynos4412_clock *clk =
+			(struct exynos4412_clock *)samsung_get_base_clock();	
+	unsigned int div_mmc;
+
+#ifdef CONFIG_DEBUG_UART
+	printascii("1. \r\n0x");
+	printhex8(readl((unsigned int) &clk->div_fsys1));
+	printascii("\r\n");
+#endif
+
+	div_mmc = readl((unsigned int) &clk->div_fsys1) & ~FSYS1_MMC0_DIV_MASK;
+	div_mmc |= CLK_DIV_MMC0_VAL;
+	writel(div_mmc, (unsigned int) &clk->div_fsys1);
+#ifdef CONFIG_DEBUG_UART
+	printascii("2. \r\n0x");
+	printhex8(readl((unsigned int) &clk->div_fsys1));
+	printascii("\r\n");
+#endif
+}
+
+static void fsys_mmc2_clock_init(void)
+{
+	struct exynos4412_clock *clk =
+			(struct exynos4412_clock *)samsung_get_base_clock();
+	unsigned int div_mmc;
+
+#ifdef CONFIG_DEBUG_UART
+	printascii("1. \r\n0x");
+	printhex8(readl((unsigned int) &clk->div_fsys2));
+	printascii("\r\n");
+#endif
+
+	div_mmc = readl((unsigned int) &clk->div_fsys2) & ~FSYS2_MMC2_DIV_MASK;
+	div_mmc |= CLK_DIV_MMC2_VAL;
+	writel(div_mmc, (unsigned int) &clk->div_fsys2);
+#ifdef CONFIG_DEBUG_UART
+	printascii("2. \r\n0x");
+	printhex8(readl((unsigned int) &clk->div_fsys2));
+	printascii("\r\n");
+#endif
+}
+
+
+void tiny4412_clock_init(void)
+{
+	//fsys_mmc0_clock_init();
+	//fsys_mmc2_clock_init();
+}
+#endif
+*/

@@ -71,7 +71,6 @@ void mmc_do_preinit(void)
 {
 	struct mmc *m;
 	struct list_head *entry;
-
 	list_for_each(entry, &mmc_devices) {
 		m = list_entry(entry, struct mmc, link);
 

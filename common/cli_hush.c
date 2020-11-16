@@ -84,6 +84,7 @@
 #include <cli.h>
 #include <cli_hush.h>
 #include <command.h>        /* find_cmd */
+#include <log.h>
 #ifndef CONFIG_SYS_PROMPT_HUSH_PS2
 #define CONFIG_SYS_PROMPT_HUSH_PS2	"> "
 #endif

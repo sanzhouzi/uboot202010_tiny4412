@@ -513,6 +513,10 @@ struct exynos4x12_clock {
 	unsigned int	cmu_isp_spar3;
 };
 
+/* 这个结构体是根据exynos4412时钟寄存器表进行调整的，
+ * 源代码默认exynos4412是使用exynos4_clock这个结构体进行时钟设置的，
+ * 但我直接用exynos4_clock设置时钟发现跑不起来，所以就自己改用了exynos4412_clock，
+ * 你可以根据自己需要，直接使用exynos4_clock也行，因为两者大部分都是一样的，仅存在一些差异。*/
 struct exynos4412_clock {
 	unsigned char	res1[0x4200];
 	unsigned int	src_leftbus;
@@ -1674,4 +1678,7 @@ struct set_epll_con_val {
 #define MPLL_FOUT_SEL_MASK	0x1
 #define BPLL_FOUT_SEL_SHIFT	0
 #define BPLL_FOUT_SEL_MASK	0x1
+
+void tiny4412_clock_init(void);
+
 #endif

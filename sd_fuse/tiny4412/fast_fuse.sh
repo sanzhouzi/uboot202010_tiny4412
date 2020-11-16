@@ -60,9 +60,33 @@ ${MKBL2} ${E4412_UBOOT_SPL} bl2.bin 14336
 
 ####################################
 # fusing images
+block=512
+reserve_size=512
+bl1_size=$((8*1024)) #8KB
+bl2_size=$((16*1024))	#16KB
+env_size=$((16*1024))	#16KB
+uboot_size=$((800*1024))	#800KB
 
-bl2_position=17
-uboot_position=49
+echo "-----------------size----------------------"
+echo block = $block
+echo reserve_size = $reserve_size
+echo bl1_size = $bl1_size
+echo bl2_size = $bl2_size
+echo uboot_size = $uboot_size
+echo env_size = $env_size
+
+signed_bl1_position=$((reserve_size/block))
+bl2_position=$((signed_bl1_position+bl1_size/block))
+uboot_position=$((bl2_position+bl2_size/block))
+env_position=$((uboot_position+uboot_size/block))
+tzsw_position=$((env_position+env_size/block))
+
+echo "-----------------offset----------------------"
+echo signed_bl1_position = $signed_bl1_position
+echo bl2_position = $bl2_position
+echo uboot_position = $uboot_position
+echo env_position = $env_position
+echo tzsw_position = $tzsw_position
 
 #<BL2 fusing>
 echo "---------------------------------------"

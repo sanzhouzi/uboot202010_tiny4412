@@ -12,8 +12,7 @@
 #include <asm/arch/periph.h>
 #include <asm/arch/pinmux.h>
 #include <usb.h>
-
-
+#include <asm/arch/clock.h>
 u32 get_board_rev(void)
 {
 	return 0;

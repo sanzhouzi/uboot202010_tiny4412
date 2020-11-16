@@ -279,7 +279,6 @@ static int abortboot_single_key(int bootdelay)
 			}
 			udelay(10000);
 		} while (!abort && get_timer(ts) < 1000);
-
 		printf("\b\b\b%2d ", bootdelay);
 	}
 
@@ -288,6 +287,8 @@ static int abortboot_single_key(int bootdelay)
 	return abort;
 }
 
+
+/*延时数秒, 有键盘输入即终止*/
 static int abortboot(int bootdelay)
 {
 	int abort = 0;
@@ -326,16 +327,15 @@ const char *bootdelay_process(void)
 {
 	char *s;
 	int bootdelay;
-
 	bootcount_inc();
 
 	s = env_get("bootdelay");
-	bootdelay = s ? (int)simple_strtol(s, NULL, 10) : CONFIG_BOOTDELAY;
+	bootdelay = s ? (int)simple_strtol(s, NULL, 10) : CONFIG_BOOTDELAY;	
+
 
 	if (IS_ENABLED(CONFIG_OF_CONTROL))
 		bootdelay = fdtdec_get_config_int(gd->fdt_blob, "bootdelay",
 						  bootdelay);
-
 	debug("### main_loop entered: bootdelay=%d\n\n", bootdelay);
 
 	if (IS_ENABLED(CONFIG_AUTOBOOT_MENU_SHOW))
@@ -372,6 +372,7 @@ void autoboot_command(const char *s)
 		if (lock)
 			prev = disable_ctrlc(1); /* disable Ctrl-C checking */
 
+		/*运行命令列表*/
 		run_command_list(s, -1, 0);
 
 		if (lock)

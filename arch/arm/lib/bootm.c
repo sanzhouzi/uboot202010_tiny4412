@@ -105,13 +105,10 @@ static void announce_and_cleanup(int fake)
 #ifdef CONFIG_BOOTSTAGE_REPORT
 	bootstage_report();
 #endif
-
 #ifdef CONFIG_USB_DEVICE
 	udc_disconnect();
 #endif
-
 	board_quiesce_devices();
-
 	printf("\nStarting kernel ...%s\n\n", fake ?
 		"(fake run for tracing)" : "");
 	/*
@@ -240,9 +237,8 @@ __weak void board_prep_linux(bootm_headers_t *images) { }
 static void boot_prep_linux(bootm_headers_t *images)
 {
 	char *commandline = env_get("bootargs");
-
 	if (IMAGE_ENABLE_OF_LIBFDT && images->ft_len) {
-#ifdef CONFIG_OF_LIBFDT
+#ifdef CONFIG_OF_LIBFDT	
 		debug("using: FDT\n");
 		if (image_setup_linux(images)) {
 			printf("FDT creation failed! hanging...");
@@ -413,6 +409,8 @@ static void boot_jump_linux(bootm_headers_t *images, int flag)
 							  0, machid, r2);
 		} else
 #endif
+			debug("@@lgc,f=%s<--> machid=%ld, r2 = 0x%lx, addr(kernel_entry)= 0x%p\n", 
+					__func__, machid, r2, kernel_entry);
 			kernel_entry(0, machid, r2);
 	}
 #endif

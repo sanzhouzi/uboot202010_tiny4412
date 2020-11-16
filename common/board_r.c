@@ -245,7 +245,6 @@ static int initr_pci(void)
 {
 	if (IS_ENABLED(CONFIG_PCI_INIT_R))
 		pci_init();
-
 	return 0;
 }
 #endif
@@ -254,7 +253,12 @@ static int initr_barrier(void)
 {
 #ifdef CONFIG_PPC
 	/* TODO: Can we not use dmb() macros for this? */
-	asm("sync ; isync");
+	/* asm("sync; isync")这句注释掉是因为在vscode中asm关键字括号中有分号和引号，
+	 * 导致后面的语法颜色有问题，
+	 * 鉴于这里并未用到，所以注释并不影响代码功能。正式发布下面的语句需要去掉注释。
+	 * ——刘桂潮注
+	 */
+	/* asm("sync; isync"); */
 #endif
 	return 0;
 }
@@ -499,13 +503,14 @@ static int initr_pvblock(void)
  */
 static int should_load_env(void)
 {
-	if (IS_ENABLED(CONFIG_OF_CONTROL))
+	if (IS_ENABLED(CONFIG_OF_CONTROL)) 
 		return fdtdec_get_config_int(gd->fdt_blob,
 						"load-environment", 1);
 
 	if (IS_ENABLED(CONFIG_DELAY_ENVIRONMENT))
 		return 0;
-
+	
+	
 	return 1;
 }
 
@@ -513,14 +518,13 @@ static int initr_env(void)
 {
 	/* initialize environment */
 	if (should_load_env())
-		env_relocate();
+		env_relocate();		
+
 	else
 		env_set_default(NULL, 0);
-
 	if (IS_ENABLED(CONFIG_OF_CONTROL))
 		env_set_hex("fdtcontroladdr",
 			    (unsigned long)map_to_sysmem(gd->fdt_blob));
-
 	/* Initialize from environment */
 	image_load_addr = env_get_ulong("loadaddr", 16, image_load_addr);
 
@@ -901,7 +905,7 @@ void board_init_r(gd_t *new_gd, ulong dest_addr)
 	gd = new_gd;
 #endif
 	gd->flags &= ~GD_FLG_LOG_READY;
-
+	
 #ifdef CONFIG_NEEDS_MANUAL_RELOC
 	for (i = 0; i < ARRAY_SIZE(init_sequence_r); i++)
 		init_sequence_r[i] += gd->reloc_off;
