@@ -279,6 +279,7 @@ static int abortboot_single_key(int bootdelay)
 			}
 			udelay(10000);
 		} while (!abort && get_timer(ts) < 1000);
+
 		printf("\b\b\b%2d ", bootdelay);
 	}
 
@@ -327,6 +328,7 @@ const char *bootdelay_process(void)
 {
 	char *s;
 	int bootdelay;
+
 	bootcount_inc();
 
 	s = env_get("bootdelay");
@@ -336,6 +338,7 @@ const char *bootdelay_process(void)
 	if (IS_ENABLED(CONFIG_OF_CONTROL))
 		bootdelay = fdtdec_get_config_int(gd->fdt_blob, "bootdelay",
 						  bootdelay);
+
 	debug("### main_loop entered: bootdelay=%d\n\n", bootdelay);
 
 	if (IS_ENABLED(CONFIG_AUTOBOOT_MENU_SHOW))

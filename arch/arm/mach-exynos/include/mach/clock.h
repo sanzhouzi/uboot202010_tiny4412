@@ -1679,6 +1679,6 @@ struct set_epll_con_val {
 #define BPLL_FOUT_SEL_SHIFT	0
 #define BPLL_FOUT_SEL_MASK	0x1
 
-void tiny4412_clock_init(void);
+/* void tiny4412_clock_init(void); */
 
 #endif
