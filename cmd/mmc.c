@@ -983,7 +983,13 @@ static int do_mmcops(struct cmd_tbl *cmdtp, int flag, int argc,
 
 	if (curr_device < 0) {
 		if (get_mmc_num() > 0) {
+#ifdef CONFIG_TINY4412
+			/* 通过启动方式选择使用哪个mmc设备,并设置mmcdev环境变量 --Liuguichao*/
+			curr_device = mmc_get_env_dev();
+			env_set_ulong("mmcdev", curr_device);
+#else
 			curr_device = 0;
+#endif
 		} else {
 			puts("No MMC device available\n");
 			return CMD_RET_FAILURE;

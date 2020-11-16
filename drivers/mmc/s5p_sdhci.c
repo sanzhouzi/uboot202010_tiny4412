@@ -76,6 +76,9 @@ static void s5p_sdhci_set_control_reg(struct sdhci_host *host)
 static void s5p_set_clock(struct sdhci_host *host, u32 div)
 {
 	/* ToDo : Use the Clock Framework */
+	/* 对于tiny4412板子，
+	 * 使用了arch/arm/mach-exynos/clock.c文件的set_mmc_clk函数修改mmc时钟。
+	*/
 	set_mmc_clk(host->index, div);
 }
 

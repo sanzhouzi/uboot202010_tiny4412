@@ -378,11 +378,11 @@ freq(SCLK_ONENAND)	= 160MHz
 				| (MMCC1_SEL << 4) \
 				| (MMCC0_SEL << 0))
 
-
 /* SCLK_MMC[0-4] = MOUTMMC[0-4]/(MMC[0-4]_RATIO + 1)/(MMC[0-4]_PRE_RATIO +1) */
-/* CLK_DIV_FSYS1 */
-#define MMC0_RATIO		0xF
-#define MMC0_PRE_RATIO		0x0
+
+/* CLK_DIV_FSYS1 MMC0=eMMC:20MHz*/
+#define MMC0_RATIO		0x9
+#define MMC0_PRE_RATIO		0x3
 #define MMC1_RATIO		0xF
 #define MMC1_PRE_RATIO		0x0
 #define CLK_DIV_FSYS1_VAL	((MMC1_PRE_RATIO << 24) \
@@ -391,8 +391,8 @@ freq(SCLK_ONENAND)	= 160MHz
 				| (MMC0_RATIO << 0))
 
 /* CLK_DIV_FSYS2  MMC2=SDMMC:20MHz*/
-#define MMC2_RATIO		0x7
-#define MMC2_PRE_RATIO		0x4
+#define MMC2_RATIO		0x9
+#define MMC2_PRE_RATIO		0x3
 #define MMC3_RATIO		0xF
 #define MMC3_PRE_RATIO		0x0
 #define CLK_DIV_FSYS2_VAL	((MMC3_PRE_RATIO << 24) \

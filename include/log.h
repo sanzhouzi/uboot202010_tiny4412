@@ -9,6 +9,8 @@
 #ifndef __LOG_H
 #define __LOG_H
 
+/* #define DEBUG */
+
 #include <stdio.h>
 #include <linker_lists.h>
 #include <dm/uclass-id.h>

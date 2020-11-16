@@ -288,6 +288,8 @@ static int abortboot_single_key(int bootdelay)
 	return abort;
 }
 
+
+/*延时数秒, 有键盘输入即终止*/
 static int abortboot(int bootdelay)
 {
 	int abort = 0;
@@ -372,6 +374,7 @@ void autoboot_command(const char *s)
 		if (lock)
 			prev = disable_ctrlc(1); /* disable Ctrl-C checking */
 
+		/*运行命令列表*/
 		run_command_list(s, -1, 0);
 
 		if (lock)

@@ -66,10 +66,18 @@ static inline s64 mmc_offset(int copy)
 		const char *offset_redund;
 		const char *partition;
 		const char *offset;
+#ifdef CONFIG_TINY4412
+		const char *sd_offset;
+		const char *emmc_offset;
+#endif
 	} dt_prop = {
 		.offset_redund = "u-boot,mmc-env-offset-redundant",
 		.partition = "u-boot,mmc-env-partition",
 		.offset = "u-boot,mmc-env-offset",
+#ifdef CONFIG_TINY4412
+		.sd_offset = "u-boot,sd-env-offset",
+		.emmc_offset = "u-boot,emmc-env-offset",
+#endif
 	};
 	s64 val = 0, defvalue;
 	const char *propname;
@@ -86,7 +94,14 @@ static inline s64 mmc_offset(int copy)
 	}
 
 	defvalue = CONFIG_ENV_OFFSET;
+#ifdef CONFIG_TINY4412
+	if (mmc_get_env_dev())
+		propname = dt_prop.sd_offset;
+	else
+		propname = dt_prop.emmc_offset;
+#else
 	propname = dt_prop.offset;
+#endif
 
 #if defined(CONFIG_ENV_OFFSET_REDUND)
 	if (copy) {
@@ -124,7 +139,14 @@ __weak int mmc_get_env_addr(struct mmc *mmc, int copy, u32 *env_addr)
 #ifdef CONFIG_SYS_MMC_ENV_PART
 __weak uint mmc_get_env_part(struct mmc *mmc)
 {
+#ifdef CONFIG_TINY4412
+	/* eMMC 返回设置值，否则返回0 */
+	if (!mmc_get_env_dev())
+		return CONFIG_SYS_MMC_ENV_PART;
+	return 0;
+#else
 	return CONFIG_SYS_MMC_ENV_PART;
+#endif
 }
 
 static unsigned char env_mmc_orig_hwpart;

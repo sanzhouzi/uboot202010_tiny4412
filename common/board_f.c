@@ -824,6 +824,7 @@ __weak int clear_bss(void)
 static const init_fnc_t init_sequence_f[] = {
 	setup_mon_len,
 #ifdef CONFIG_OF_CONTROL
+	/*获取dtb的地址，并且验证dtb的合法性*/
 	fdtdec_setup,
 #endif
 #ifdef CONFIG_TRACE_EARLY
@@ -930,6 +931,7 @@ static const init_fnc_t init_sequence_f[] = {
 	reserve_board,
 	setup_machine,
 	reserve_global_data,
+	/*为dtb分配新的内存地址空间*/
 	reserve_fdt,
 	reserve_bootstage,
 	reserve_bloblist,
@@ -941,6 +943,7 @@ static const init_fnc_t init_sequence_f[] = {
 	setup_bdinfo,
 	display_new_sp,
 	INIT_FUNC_WATCHDOG_RESET
+	/*relocate dtb*/
 	reloc_fdt,
 	reloc_bootstage,
 	reloc_bloblist,
@@ -960,7 +963,8 @@ static const init_fnc_t init_sequence_f[] = {
 void board_init_f(ulong boot_flags)
 {
 	gd->flags = boot_flags;
-	gd->have_console = 0;
+	/*设置控制台数量*/
+	gd->have_console = 1;
 
 	if (initcall_run_list(init_sequence_f))
 		hang();

@@ -11,22 +11,64 @@
 #include "exynos4412.dtsi"
 
 / {
-	model = "Tiny4412(v1412) board based on Exynos4412 \r\nModified by Liu Guichao<gccb@foxmail.com>";
-	compatible = "insignal,tiny4412", "samsung,exynos4412";
+	model = "Tiny4412(v1412) board based on Exynos4412";
+	compatible = "samsung,tiny4412", "samsung,exynos4412";
 
 	chosen {
 		bootargs ="";
 	};
 
+	config {
+
+		/* 
+		* SD卡分区和eMMC分区信息参见include/configs/tiny4412.h最后面注释
+		* sd_env_offset = 512 + 8*1024 + 16*1024 + 800*1024
+		* emmc_env_offset = sd_env_offset - 512
+		* kernel-offset = 512 + 8*1024 + 16*1024*2 + 800*1024
+		*/
+		u-boot,sd-env-offset = <0xCE200>;
+		u-boot,emmc-env-offset = <0xCE000>;
+		/* 自动启动命令， 通过当前的MMC设备判断是SD卡引导内核还是eMMC引导内核 */
+		bootcmd = "
+		if mmc rescan; then \
+			echo SD/MMC found on device ${mmcdev}; \
+			if test ${mmcdev} = ${sddev}; then \
+				echo read zImage from SD card...; \
+				mmc read ${kerneladdr} ${sdkernelboff} ${kernelbsize}; \
+			else \
+				if mmc dev 0 0; then \
+					echo read zImage from eMMC card...; \
+					mmc read ${kerneladdr} ${eMMCkernelboff} ${kernelbsize}; \
+				fi; \
+			fi; \
+		fi; \
+		bootz ${loadaddr} ";
+	};
+
+
 	aliases {
+		mmc0 = &sdhci0;
+		mmc2 = &sdhci2;
 		serial0 = "/serial@13800000";
 		console = "/serial@13800000";
 	};
 };
 
+
+&sdhci0 {
+	samsung,bus-width = <4>;
+	samsung,timing = <1 2 3>;
+	cap-mmc-highspeed = "true";
+	non-removable = "true";
+	status = "okay";
+};
+
+
 &sdhci2 {
 	samsung,bus-width = <4>;
 	samsung,timing = <1 2 3>;
 	cd-gpios = <&gpk2 2 0>;
+	cap-sd-highspeed = "true";
+	cd-inverted = "true";
 	status = "okay";
 };

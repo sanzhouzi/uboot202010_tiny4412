@@ -581,6 +581,7 @@ int fdtdec_check_fdt(void)
  * This function is a little odd in that it accesses global data. At some
  * point if the architecture board.c files merge this will make more sense.
  * Even now, it is common code.
+ * 检查fdt的合法性.
  */
 int fdtdec_prepare_fdt(void)
 {
@@ -1541,26 +1542,26 @@ int fdtdec_setup(void)
 # if CONFIG_IS_ENABLED(MULTI_DTB_FIT)
 	void *fdt_blob;
 # endif
-# ifdef CONFIG_OF_EMBED
+# ifdef CONFIG_OF_EMBED /*设备树内嵌到uboot中(一般不采用)*/
 	/* Get a pointer to the FDT */
 #  ifdef CONFIG_SPL_BUILD
 	gd->fdt_blob = __dtb_dt_spl_begin;
 #  else
 	gd->fdt_blob = __dtb_dt_begin;
-#  endif
-# elif defined(CONFIG_OF_BOARD) || defined(CONFIG_OF_SEPARATE)
-	/* Allow the board to override the fdt address. */
+#  endif /*CONFIG_SPL_BUILD*/
+# elif defined(CONFIG_OF_BOARD) || defined(CONFIG_OF_SEPARATE) /*dtb追加到uboot的bin文件后面*/
+	/* Allow the board to override the fdt address. 允许开发板覆盖fdt地址。*/
 	gd->fdt_blob = board_fdt_blob_setup();
-# elif defined(CONFIG_OF_HOSTFILE)
+# elif defined(CONFIG_OF_HOSTFILE) /*This is only useful for sandbox*/
 	if (sandbox_read_fdt_from_file()) {
 		puts("Failed to read control FDT\n");
 		return -1;
 	}
-# elif defined(CONFIG_OF_PRIOR_STAGE)
+# elif defined(CONFIG_OF_PRIOR_STAGE) /*dtb存储在.data字段中，bss之前*/
 	gd->fdt_blob = (void *)prior_stage_fdt_address;
-# endif
+# endif /*CONFIG_OF_EMBED ...*/
 # ifndef CONFIG_SPL_BUILD
-	/* Allow the early environment to override the fdt address */
+	/* Allow the early environment to override the fdt address 允许早期环境覆盖fdt地址 */
 	gd->fdt_blob = map_sysmem
 		(env_get_ulong("fdtcontroladdr", 16,
 			       (unsigned long)map_to_sysmem(gd->fdt_blob)), 0);

@@ -413,7 +413,8 @@ int device_probe(struct udevice *dev)
 
 	if (dev->flags & DM_FLAG_ACTIVATED)
 		return 0;
-
+	/* 运行到这里说明这个设备是激活的 */
+	
 	drv = dev->driver;
 	assert(drv);
 
